@@ -24,10 +24,18 @@ namespace AutofacDemoConsole
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
         {
+
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
+                    .AddConsole().AddDebug();
+            });
+
             // add logging
-            serviceCollection.AddSingleton(new LoggerFactory()
-                .AddConsole()
-                .AddDebug());
+            serviceCollection.AddSingleton(loggerFactory);
             serviceCollection.AddLogging(); 
 
             // build configuration
