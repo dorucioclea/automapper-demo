@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacDemoConsole;
@@ -7,8 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace AutofacDemoConsole {
-    public class Container {
+namespace AutofacDemoConsole 
+{
+    public class Container 
+    {
         public static IContainer Configure () 
         {
             var serviceCollection = new ServiceCollection ();
@@ -21,9 +25,14 @@ namespace AutofacDemoConsole {
         {
             var autofacBuilder = new ContainerBuilder ();
             autofacBuilder.Populate (serviceDescriptors);
-            autofacBuilder.RegisterModule (new ServicesModule ());
+            RegisterModules(autofacBuilder);
             var container = autofacBuilder.Build ();
             return container;
+        }
+
+        private static void RegisterModules(ContainerBuilder autofacBuilder)
+        {
+            autofacBuilder.RegisterAssemblyModules(Assembly.GetExecutingAssembly());
         }
 
         private static void ConfigureServices (IServiceCollection serviceCollection) 
