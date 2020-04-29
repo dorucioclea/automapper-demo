@@ -1,5 +1,5 @@
 {
-  "Configuration": {
-    "ConsoleTitle": "Pioneer Console Boilerplate"
+  "AppSettings": {
+    "ConsoleTitle": "Demo console"
   }
 }

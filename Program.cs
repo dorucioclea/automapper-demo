@@ -1,9 +1,7 @@
-using System.IO;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using System;
+using Autofac;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
-using AutofacDemoConsole.Models;
-using AutofacDemoConsole.Services;
 
 namespace AutofacDemoConsole
 {
@@ -11,53 +9,35 @@ namespace AutofacDemoConsole
     {
         public static void Main(string[] args)
         {
-            // create service collection
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
+            var container = Container.Configure();
+            using var scope = container.BeginLifetimeScope();
 
-            // create service provider
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            ValidateMapperConfiguration(scope);
 
-            // run app
-            serviceProvider.GetService<App>().Run();
+            RunApp(scope);
         }
 
-        private static void ConfigureServices(IServiceCollection serviceCollection)
+        private static void ValidateMapperConfiguration(ILifetimeScope scope)
         {
 
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
-                    .AddConsole().AddDebug();
-            });
+            var logger = scope.Resolve<ILogger<Program>>();
 
-            // add logging
-            serviceCollection.AddSingleton(loggerFactory);
-            serviceCollection.AddLogging(); 
-
-            // build configuration
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("app-settings.json", false)
-                .Build();
-
-            serviceCollection.AddOptions();
-            serviceCollection.Configure<AppSettings>(configuration.GetSection("Configuration"));
-            ConfigureConsole(configuration);
-
-            // add services
-            serviceCollection.AddTransient<ITestService, TestService>();
-
-            // add app
-            serviceCollection.AddTransient<App>();
+           try 
+           {
+                var mapperConfiguration = scope.Resolve<MapperConfiguration>();
+                mapperConfiguration.AssertConfigurationIsValid();
+                logger.LogDebug("Automapper Configuration is valid");
+           } catch
+           {
+                logger.LogError("Automapper Configuration is not valid");     
+           }
         }
 
-        private static void ConfigureConsole(IConfigurationRoot configuration)
+        private static void RunApp(ILifetimeScope scope)
         {
-            System.Console.Title = configuration.GetSection("Configuration:ConsoleTitle").Value;
+            var application = scope.Resolve<App>();
+
+            application.Run();
         }
     }
 }
