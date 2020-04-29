@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutofacDemoConsole;
 using AutofacDemoConsole.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +32,13 @@ namespace AutofacDemoConsole
 
         private static void RegisterModules(ContainerBuilder autofacBuilder)
         {
-            autofacBuilder.RegisterAssemblyModules(Assembly.GetExecutingAssembly());
+            var assemblyList = new List<Assembly>()
+            {
+                Assembly.GetExecutingAssembly()
+            };
+
+            autofacBuilder.RegisterModule(new ServicesModule());
+            autofacBuilder.AddAutoMapper();
         }
 
         private static void ConfigureServices (IServiceCollection serviceCollection) 
