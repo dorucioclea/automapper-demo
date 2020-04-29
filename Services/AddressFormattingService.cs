@@ -23,8 +23,9 @@ namespace AutofacDemoConsole.Services
 
         public string Format(PersonAddress address)
         {
-            _logger.LogWarning($"Formatting address");
-            return $"{address.Street}, PO {address.PostalCode}";
+            var addressFormatted = $"{address.Street}, PO {address.PostalCode}";
+            _logger.LogWarning($"Formatting address to {addressFormatted}");
+            return addressFormatted;
         }
     }
 }
